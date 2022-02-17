@@ -1,8 +1,10 @@
 let hasInit = false;
 
+const args = JSON.parse(process.argv[2]);
+
 const command = {
-	user: "Computer_Q",
-	name: "hello_world",
+	user: args.player,
+	name: args.script,
 };
 
 const slowBuilding = false;
@@ -11,7 +13,6 @@ let time = 0;
 let timeouts = [];
 
 let s = function (data) {
-	process.send("say " + data);
 	process.send(conditions + data);
 };
 
@@ -233,23 +234,23 @@ module.exports = {
 		s(txt);
 		return this;
 	},
-	parseID: function (id) {
-		ID = "N/A";
-		if (ID == "N/A") {
-			const data = require("./items.json");
-			ID = {};
-			for (let i = 0; i < data.length; i++) {
-				let t = data[i].type + ":" + data[i].meta;
-				ID[t] = data[i].name.toLowerCase().replace(/ /g, "_");
-				if (data[i].meta == 0) {
-					ID[data[i].type] = data[i].name.toLowerCase().replace(/ /g, "_");
-				}
+	ID: (() => {
+		const data = require("./items.json");
+		const ID = {};
+		for (let i = 0; i < data.length; i++) {
+			let t = data[i].type + ":" + data[i].meta;
+			ID[t] = data[i].name.toLowerCase().replace(/ /g, "_");
+			if (data[i].meta == 0) {
+				ID[data[i].type] = data[i].name.toLowerCase().replace(/ /g, "_");
 			}
 		}
-		if (ID[id] == null) {
+		return ID;
+	})(),
+	parseID: function (id) {
+		if (this.ID[id] == null) {
 			return id;
 		}
-		return ID[id];
+		return this.ID[id];
 	},
 };
 module.exports.init();

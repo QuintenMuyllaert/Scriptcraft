@@ -92,15 +92,19 @@ process.on("message", (msg) => {
 	const playerArguments = JSON.parse("[" + (playerCommand.split("(")?.[1] || ")").replace(")", "]"));
 
 	if (scripts.includes(playerFunction)) {
-		fs.writeFileSync(
-			path.join("./public/", playerName, playerFunction, ".command.json"),
-			JSON.stringify({
-				owner: playerName,
-				player: playerName,
-				args: playerArguments,
-			}),
-		);
-		const proc = fork(path.join("./public", playerName, playerFunction, "index.cjs"), playerArguments, { detached: true, silent: true });
+		const scriptcraftArguments = {
+			owner: playerName,
+			script: playerFunction,
+			player: playerName,
+			args: playerArguments,
+		};
+
+		fs.writeFileSync(path.join("./public/", playerName, playerFunction, ".command.json"), JSON.stringify(scriptcraftArguments));
+
+		const proc = fork(path.join("./public", playerName, playerFunction, "index.cjs"), [JSON.stringify(scriptcraftArguments), ...playerArguments], {
+			detached: true,
+			silent: true,
+		});
 
 		proc.on("message", (msg) => {
 			process.send(msg.toString());
