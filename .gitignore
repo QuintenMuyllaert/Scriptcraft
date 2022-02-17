@@ -102,3 +102,15 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Minecraft
+versions
+world
+libraries
+server.jar
+banned-ips.json
+banned-players.json
+usercache.json
+whitelist.json
+session.lock
+ops.json
