@@ -21,7 +21,7 @@ const spawnScriptcraft = () => {
 	scriptcraft.alive = true;
 
 	scriptcraft.on("message", (msg) => {
-		server.stdin.write(msg + "\n");
+		server.stdin.write(msg.toString() + "\n");
 	});
 
 	scriptcraft.on("close", () => {

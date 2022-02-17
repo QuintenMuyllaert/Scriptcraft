@@ -41,7 +41,7 @@ process.on("message", (msg) => {
 
 	if (playerCommand === "kill") {
 		for (let i in player[playerName].processes) {
-			player[playerName].processes[i].kill();
+			player[playerName].processes[i].kill("SIGINT");
 		}
 		sendMessage(playerName, "Killed code instances!", "green");
 		return;
@@ -50,7 +50,7 @@ process.on("message", (msg) => {
 	if (playerCommand === "kill all") {
 		for (const name of Object.keys(player)) {
 			for (let i in player[name].processes) {
-				player[name].processes[i].kill();
+				player[name].processes[i].kill("SIGINT");
 			}
 		}
 		sendMessage(playerName, "Killed all code instances!", "green");
@@ -92,14 +92,22 @@ process.on("message", (msg) => {
 	const playerArguments = JSON.parse("[" + (playerCommand.split("(")?.[1] || ")").replace(")", "]"));
 
 	if (scripts.includes(playerFunction)) {
-		const proc = fork(path.join("./public", playerName, playerFunction, "index.js"), playerArguments, { detached: true, silent: true });
+		fs.writeFileSync(
+			path.join("./public/", playerName, playerFunction, ".command.json"),
+			JSON.stringify({
+				owner: playerName,
+				player: playerName,
+				args: playerArguments,
+			}),
+		);
+		const proc = fork(path.join("./public", playerName, playerFunction, "index.cjs"), playerArguments, { detached: true, silent: true });
 
 		proc.on("message", (msg) => {
-			process.send(msg);
+			process.send(msg.toString());
 		});
 
 		proc.stderr.on("data", (err) => {
-			sendMessage(playerName, err, "red");
+			sendMessage(playerName, err.toString(), "red");
 		});
 
 		player[playerName].processes.push(proc);

@@ -114,3 +114,9 @@ usercache.json
 whitelist.json
 session.lock
 ops.json
+
+#Scriptcraft
+.command.json
+public/*
+!public/readme.md
+!public/examples/*
