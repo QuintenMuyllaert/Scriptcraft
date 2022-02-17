@@ -4,17 +4,13 @@ import path from "path";
 import fs from "fs";
 
 import { spawn, fork } from "child_process";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-
 import file from "./modules/file.js";
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 //remove old Minecraft world
-fs.rmSync(path.join(__dirname, "minecraft", "world"), { recursive: true, force: true });
+fs.rmSync(path.join("./minecraft", "world"), { recursive: true, force: true });
 
 //copies clean Minecraft world
-file.cp(path.join(__dirname, "minecraft", "world_clean"), path.join(__dirname, "minecraft", "world"));
+file.cp(path.join("./minecraft", "world_clean"), path.join("./minecraft", "world"));
 
 const server = spawn("java", ["-jar", "-Xms2G", "-Xmx2G", "server.jar"], { cwd: "./minecraft" });
 
@@ -25,7 +21,7 @@ const spawnScriptcraft = () => {
 	scriptcraft.alive = true;
 
 	scriptcraft.on("message", (msg) => {
-		server.stdin.write(msg);
+		server.stdin.write(msg + "\n");
 	});
 
 	scriptcraft.on("close", () => {
@@ -43,6 +39,6 @@ fs.watch("./modules", () => {
 
 server.stdout.on("data", (buffer) => {
 	if (scriptcraft.alive) {
-		scriptcraft.send(buffer.toString());
+		scriptcraft.send(buffer.toString().replace("\n", ""));
 	}
 });

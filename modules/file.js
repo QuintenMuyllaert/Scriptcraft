@@ -13,6 +13,14 @@ export const cp = (source, target) => {
 	}
 };
 
+export const mkDirKeep = (folderPath) => {
+	if (fs.existsSync(folderPath)) {
+		return;
+	}
+	fs.mkdirSync(folderPath);
+};
+
 export default {
 	cp: cp,
+	mkDirKeep: mkDirKeep,
 };
