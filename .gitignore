@@ -119,4 +119,4 @@ ops.json
 .command.json
 public/*
 !public/readme.md
-!public/examples/*
+!public/examples
