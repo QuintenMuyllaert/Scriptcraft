@@ -9,9 +9,14 @@ import file from "./file.js";
 const prefix = "!js ";
 const player = {};
 
+const sendMessage = (playerName = "@a", msg = "", color = "white") => {
+	msg = JSON.stringify(msg);
+	process.send(`tellraw ${playerName} {"text":${msg},"color":"${color}","clickEvent":{"action":"copy_to_clipboard","value":${msg}}}`);
+};
+
 process.on("message", (msg) => {
 	//example chat message
-	//[05:16:28] [Server thread/INFO]: <Computer_Q> hello world\n
+	//[05:16:28] [Server thread/INFO]: <Computer_Q> hello world
 	console.log(JSON.stringify(msg));
 
 	const chatMessage = msg.match(/: <.+?> /);
@@ -38,6 +43,7 @@ process.on("message", (msg) => {
 		for (let i in player[playerName].processes) {
 			player[playerName].processes[i].kill();
 		}
+		sendMessage(playerName, "Killed code instances!", "green");
 		return;
 	}
 
@@ -47,12 +53,40 @@ process.on("message", (msg) => {
 				player[name].processes[i].kill();
 			}
 		}
+		sendMessage(playerName, "Killed all code instances!", "green");
 		return;
 	}
 
 	file.mkDirKeep(path.join("./public/", playerName));
 
 	const scripts = fs.readdirSync(path.join("./public/", playerName));
+	const templates = fs.readdirSync(path.join("./templates/"));
+
+	if (playerCommand.startsWith("create ")) {
+		const createParts = playerCommand.split(" ");
+
+		if (createParts.length !== 3) {
+			sendMessage(playerName, `Create expected a template & name!`, "red");
+			return;
+		}
+
+		const templateName = createParts[1];
+		const createName = createParts[2];
+
+		if (scripts.includes(createName)) {
+			sendMessage(playerName, `You already have a script named "${createName}"!`, "red");
+			return;
+		}
+
+		if (!templates.includes(templateName)) {
+			sendMessage(playerName, `"${templateName}" is not a valid template!`, "red");
+			return;
+		}
+
+		file.cp(path.join("./templates/", templateName), path.join("./public/", playerName, createName));
+		sendMessage(playerName, `Created new script in "./public/${playerName}/${createName}" based on "${templateName}"!`, "green");
+		return;
+	}
 
 	const playerFunction = playerCommand.split("(")[0];
 	const playerArguments = JSON.parse("[" + (playerCommand.split("(")?.[1] || ")").replace(")", "]"));
@@ -65,20 +99,15 @@ process.on("message", (msg) => {
 		});
 
 		proc.stderr.on("data", (err) => {
-			err = err.toString().replace(/\"/g, '\\"');
-			process.send(
-				`tellraw ${playerName} {"text":${JSON.stringify(err)},"color":"red","clickEvent":{"action":"copy_to_clipboard","value":${JSON.stringify(err)}}}`,
-			);
+			sendMessage(playerName, err, "red");
 		});
 
 		player[playerName].processes.push(proc);
 	} else {
 		try {
-			const out = JSON.stringify(eval(playerCommand))?.replace(/\"/g, '\\"');
-			process.send(`tellraw ${playerName} {"text":"${out}","color":"green","clickEvent":{"action":"copy_to_clipboard","value":"${out}"}}`);
+			sendMessage(playerName, JSON.stringify(eval(playerCommand)), "green");
 		} catch (err) {
-			err = JSON.stringify(err.toString())?.replace(/\"/g, '\\"');
-			process.send(`tellraw ${playerName} {"text":${err},"color":"red","clickEvent":{"action":"copy_to_clipboard","value":${err}}}`);
+			sendMessage(playerName, err, "red");
 		}
 	}
 });
