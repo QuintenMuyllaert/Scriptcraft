@@ -259,7 +259,6 @@ function exitHandler(options, exitCode) {
 	if (options.cleanup) {
 		process.send(`kill @e[type=armor_stand,name="${module.exports.Drone.name}"]`);
 		process.send(`kill @e[type=armor_stand,name="Start-${module.exports.Drone.name}"]`);
-		module.exports.echo("ded");
 	}
 	if (exitCode || exitCode === 0) console.log(exitCode);
 	if (options.exit) process.exit();
@@ -276,4 +275,7 @@ process.on("SIGUSR1", exitHandler.bind(null, { exit: true }));
 process.on("SIGUSR2", exitHandler.bind(null, { exit: true }));
 
 //catches uncaught exceptions
-process.on("uncaughtException", exitHandler.bind(null, { exit: true }));
+process.on("uncaughtException", (err) => {
+	console.error(err);
+	exitHandler.bind(null, { exit: true });
+});
