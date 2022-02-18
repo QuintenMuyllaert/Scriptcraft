@@ -3,16 +3,20 @@ let hasInit = false;
 const args = JSON.parse(process.argv[2]);
 
 const command = {
+	owner: args.owner,
 	user: args.player,
 	name: args.script,
 };
 
-const slowBuilding = false;
+const config = require(`../public/${command.owner}/${command.name}/config.json`);
+
+const buildSpeed = config.buildDelay || 0;
+const slowBuilding = buildSpeed > 0;
 
 let time = 0;
 let timeouts = [];
 
-let s = function (data) {
+let s = (data) => {
 	process.send(conditions + data);
 };
 
@@ -47,10 +51,13 @@ module.exports = {
 		);
 
 		if (slowBuilding) {
+			const os = s;
 			s = function (data) {
-				timeouts[timeouts.length] = setTimeout(function () {
-					process.send(data);
-				}, time * buildSpeed);
+				timeouts.push(
+					setTimeout(() => {
+						os(data);
+					}, time * buildSpeed),
+				);
 				time++;
 			};
 		}
