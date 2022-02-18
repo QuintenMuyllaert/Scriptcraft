@@ -17,8 +17,6 @@ const sendMessage = (playerName = "@a", msg = '""', color = "white") => {
 process.on("message", (msg) => {
 	//example chat message
 	//[05:16:28] [Server thread/INFO]: <Computer_Q> hello world
-	console.log(JSON.stringify(msg));
-
 	const chatMessage = msg.match(/: <.+?> /);
 	if (!chatMessage) {
 		return;
@@ -153,3 +151,11 @@ process.on("message", (msg) => {
 		}
 	}
 });
+
+process.send("gamerule doDaylightCycle false");
+process.send("gamerule doWeatherCycle false");
+process.send("time set 6000");
+process.send("gamerule keepInventory true");
+process.send("gamerule commandBlockOutput false");
+process.send("gamerule doMobSpawning false");
+process.send("gamemode @a creative");
