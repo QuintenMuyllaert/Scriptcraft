@@ -31,7 +31,24 @@ process.on("message", (msg) => {
 		return;
 	}
 
-	const playerCommand = playerMessage.replace(prefix, "");
+	const playerFullCommand = playerMessage.replace(prefix, "");
+
+	const playerCommand = playerFullCommand.split(" --")[0];
+	const playerArgs = playerFullCommand.split(" --").slice(1);
+
+	const playerArgument = {};
+	for (const arg of playerArgs) {
+		const [name, value] = arg.split(" ");
+		playerArgument[name] = value;
+	}
+
+	let folderName = playerName;
+	if (playerArgument["in"]) {
+		const folder = playerArgument["in"].match(/([a-zA-Z_\-0-9])\w+/);
+		if (folder[0]) {
+			folderName = folder[0];
+		}
+	}
 
 	if (!player[playerName]) {
 		player[playerName] = {
@@ -59,7 +76,7 @@ process.on("message", (msg) => {
 
 	file.mkDirKeep(path.join("./public/", playerName));
 
-	const scripts = fs.readdirSync(path.join("./public/", playerName));
+	const scripts = fs.readdirSync(path.join("./public/", folderName));
 	const templates = fs.readdirSync(path.join("./templates/"));
 
 	if (playerCommand.startsWith("create ")) {
@@ -93,15 +110,21 @@ process.on("message", (msg) => {
 
 	if (scripts.includes(playerFunction)) {
 		const scriptcraftArguments = {
-			owner: playerName,
+			owner: folderName,
 			script: playerFunction,
 			player: playerName,
 			args: playerArguments,
 		};
 
-		fs.writeFileSync(path.join("./public/", playerName, playerFunction, ".command.json"), JSON.stringify(scriptcraftArguments));
+		fs.writeFileSync(path.join("./public/", folderName, playerFunction, ".command.json"), JSON.stringify(scriptcraftArguments));
 
-		const proc = fork(path.join("./public", playerName, playerFunction, "index.cjs"), [JSON.stringify(scriptcraftArguments), ...playerArguments], {
+		const files = fs.readdirSync(path.join("./public", folderName, playerFunction));
+
+		let script = "";
+		script = files.includes("index.js") ? "index.js" : script;
+		script = files.includes("index.cjs") ? "index.cjs" : script;
+
+		const proc = fork(path.join("./public", folderName, playerFunction, script), [JSON.stringify(scriptcraftArguments), ...playerArguments], {
 			detached: true,
 			silent: true,
 		});
