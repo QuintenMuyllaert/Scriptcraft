@@ -67,8 +67,9 @@ module.exports = {
 		s(`kill @e[type=painting,name=Quinten]`);
 		return this;
 	},
-	echo: function (txt) {
-		s(`tellraw ${command.user} "${txt}"`);
+	echo: function (msg, color = "white") {
+		msg = JSON.stringify(msg);
+		s(`tellraw ${command.user} {"text":${msg},"color":"${color}","clickEvent":{"action":"copy_to_clipboard","value":${msg}}}`);
 		return this;
 	},
 	points: {},
@@ -260,12 +261,14 @@ module.exports = {
 		return this.ID[id];
 	},
 };
+module.exports.echo(`Starting "${command.name}"!`, "green");
 module.exports.init();
 
 function exitHandler(options, exitCode) {
 	if (options.cleanup) {
 		process.send(`kill @e[type=armor_stand,name="${module.exports.Drone.name}"]`);
 		process.send(`kill @e[type=armor_stand,name="Start-${module.exports.Drone.name}"]`);
+		module.exports.echo(`Exited "${command.name}"!`, "green");
 	}
 	if (exitCode || exitCode === 0) console.log(exitCode);
 	if (options.exit) process.exit();
