@@ -9,7 +9,7 @@ import file from "./file.js";
 const prefix = "!js ";
 const player = {};
 
-const sendMessage = (playerName = "@a", msg = "", color = "white") => {
+const sendMessage = (playerName = "@a", msg = '""', color = "white") => {
 	msg = JSON.stringify(msg);
 	process.send(`tellraw ${playerName} {"text":${msg},"color":"${color}","clickEvent":{"action":"copy_to_clipboard","value":${msg}}}`);
 };
@@ -45,9 +45,11 @@ process.on("message", (msg) => {
 	let folderName = playerName;
 	if (playerArgument["in"]) {
 		const folder = playerArgument["in"].match(/([a-zA-Z_\-0-9])\w+/);
-		if (folder[0]) {
-			folderName = folder[0];
+		if (!folder) {
+			sendMessage(playerName, `Illegal folder for "--in" parameter!`, "red");
+			return;
 		}
+		folderName = folder[0];
 	}
 
 	if (!player[playerName]) {
@@ -76,6 +78,11 @@ process.on("message", (msg) => {
 
 	file.mkDirKeep(path.join("./public/", playerName));
 
+	if (!fs.existsSync(path.join("./public/", folderName))) {
+		sendMessage(playerName, `Folder "${folderName}" does not exist!`, "red");
+		return;
+	}
+
 	const scripts = fs.readdirSync(path.join("./public/", folderName));
 	const templates = fs.readdirSync(path.join("./templates/"));
 
@@ -100,8 +107,8 @@ process.on("message", (msg) => {
 			return;
 		}
 
-		file.cp(path.join("./templates/", templateName), path.join("./public/", playerName, createName));
-		sendMessage(playerName, `Created new script in "./public/${playerName}/${createName}" based on "${templateName}"!`, "green");
+		file.cp(path.join("./templates/", templateName), path.join("./public/", folderName, createName));
+		sendMessage(playerName, `Created new script in "./public/${folderName}/${createName}" based on "${templateName}"!`, "green");
 		return;
 	}
 
