@@ -25,7 +25,7 @@ let conditions = "";
 module.exports = {
 	Drone: {
 		owner: command.user,
-		name: command.name,
+		name: command.name + "-" + Math.random(),
 		initLocation: [0, 0, 0],
 		location: [0, 0, 0],
 		rotation: 0,
@@ -262,6 +262,8 @@ module.exports = {
 	},
 };
 module.exports.echo(`Starting "${command.name}"!`, "green");
+module.exports.echo(`Config = buildDelay : "${config.buildDelay}", visualDrone : "${config.visualDrone}"`, "green");
+
 module.exports.init();
 
 function exitHandler(options, exitCode) {
