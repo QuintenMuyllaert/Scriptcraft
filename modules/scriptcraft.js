@@ -3,7 +3,7 @@ console.log("Loaded");
 import fs from "fs";
 import path from "path";
 
-import { fork } from "child_process";
+import { fork, spawn } from "child_process";
 import file from "./file.js";
 
 const prefix = "!js ";
@@ -126,22 +126,58 @@ process.on("message", (msg) => {
 		const files = fs.readdirSync(path.join("./public", folderName, playerFunction));
 
 		let script = "";
-		script = files.includes("index.js") ? "index.js" : script;
-		script = files.includes("index.cjs") ? "index.cjs" : script;
+		let type = "";
+		const programs = {
+			js: "node",
+			cjs: "node",
+			py: "python",
+		};
 
-		const proc = fork(path.join("./public", folderName, playerFunction, script), [JSON.stringify(scriptcraftArguments), ...playerArguments], {
-			detached: true,
-			silent: true,
-		});
+		for (const file of files) {
+			if (file.startsWith("index") || file.startsWith("main") || file.startsWith("app")) {
+				script = file;
+				type = programs[script.split(".").pop()];
+			}
+			if (file.startsWith("package")) {
+				script = JSON.parse(fs.readFileSync(path.join("./public", folderName, playerFunction, file))).main;
+				type = "node";
+				break;
+			}
+		}
 
-		proc.on("message", (msg) => {
-			process.send(msg.toString());
-		});
+		let proc;
+		if (type == "node") {
+			proc = fork(path.join("./public", folderName, playerFunction, script), [JSON.stringify(scriptcraftArguments), ...playerArguments], {
+				detached: true,
+				silent: true,
+			});
+
+			proc.on("message", (msg) => {
+				process.send(msg.toString());
+			});
+		} else {
+			proc = spawn(type, [script, JSON.stringify(scriptcraftArguments), ...playerArguments], {
+				cwd: path.join("./public", folderName, playerFunction),
+			});
+
+			proc.stdout.on("data", (msg) => {
+				const msgs = msg.toString().split("\n");
+				for (const msg of msgs) {
+					try {
+						const obj = JSON.parse(msg);
+						if (obj?.sc) {
+							process.send(obj?.sc.toString());
+						}
+					} catch (e) {
+						sendMessage(playerName, msg.toString().slice(0, -1), "white");
+					}
+				}
+			});
+		}
 
 		proc.stderr.on("data", (err) => {
 			sendMessage(playerName, err.toString(), "red");
 		});
-
 		player[playerName].processes.push(proc);
 	} else {
 		try {

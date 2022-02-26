@@ -18,6 +18,7 @@ let timeouts = [];
 
 let s = (data) => {
 	process.send(conditions + data);
+	console.log(JSON.stringify({ sc: conditions + data }));
 };
 
 let conditions = "";
