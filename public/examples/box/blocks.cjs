@@ -1,1 +1,1 @@
-/home/quinten/Desktop/Scriptcraft/modules/blocks.cjs
+../../../modules/blocks.cjs

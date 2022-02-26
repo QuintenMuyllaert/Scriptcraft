@@ -1,1 +1,1 @@
-/home/quinten/Desktop/Scriptcraft/modules/p.cjs
+../../../modules/p.cjs
