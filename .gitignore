@@ -114,6 +114,7 @@ usercache.json
 whitelist.json
 session.lock
 ops.json
+server.properties
 
 #Scriptcraft
 .command.json
