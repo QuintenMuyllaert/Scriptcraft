@@ -6,7 +6,7 @@ import path from "path";
 import { fork, spawn } from "child_process";
 import file from "./file.js";
 
-const prefix = "!js ";
+const prefix = "!sc ";
 const player = {};
 
 const sendMessage = (playerName = "@a", msg = '""', color = "white") => {
