@@ -240,7 +240,7 @@ module.exports = {
 		return this;
 	},
 	command: function (txt) {
-		s(txt);
+		s(`execute at @e[type=armor_stand,name=${this.Drone.name}] run ${txt}`);
 		return this;
 	},
 	ID: (() => {
