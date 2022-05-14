@@ -122,3 +122,4 @@ crash-reports
 public/*
 !public/readme.md
 !public/examples
+.currentmc
