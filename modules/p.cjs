@@ -1,4 +1,5 @@
 let hasInit = false;
+let antigriefing = true;
 
 const args = JSON.parse(process.argv[2]);
 
@@ -22,6 +23,18 @@ let s = (data) => {
 };
 
 let conditions = "";
+
+let checkblock = (block) => {
+	const illegal = ["tnt", "lava", "water", "command_block", "repeating_command_block", "chain_command_block", "structure_block", "structure_void"];
+	for (const illi of illegal) {
+		if (block.includes(illi)) {
+			s(`say "${command.user}" attempted to spawn "${illi}" using ${command.owner}/${command.name}`);
+			s(`kick ${command.user} Illegal block usage.`);
+			process.exit(1);
+		}
+	}
+	return block;
+};
 
 module.exports = {
 	Drone: {
@@ -126,6 +139,11 @@ module.exports = {
 				zs = -rechts;
 				break;
 		}
+
+		if (antigriefing) {
+			block = checkblock(block);
+		}
+
 		s(`fill ~${Math.trunc(x)} ~${Math.trunc(y)} ~${Math.trunc(z)} ~${Math.trunc(x + xs)} ~${Math.trunc(y + boven)} ~${Math.trunc(z + zs)} ${block}`);
 		return this;
 	},
