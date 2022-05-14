@@ -131,10 +131,11 @@ process.on("message", (msg) => {
 			js: "node",
 			cjs: "node",
 			py: "python",
+			sh: "bash",
 		};
 
 		for (const file of files) {
-			if (file.startsWith("index") || file.startsWith("main") || file.startsWith("app")) {
+			if (file.startsWith("start") || file.startsWith("index") || file.startsWith("main") || file.startsWith("app")) {
 				script = file;
 				type = programs[script.split(".").pop()];
 			}
