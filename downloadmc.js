@@ -13,6 +13,7 @@ export const downloadLatest = () => {
 		const text = fs.readFileSync(".currentmc").toString();
 		if (text == text2) {
 			console.log("Already on last MC version, skipping download.");
+			mayServerStart = true;
 			return;
 		}
 	}
