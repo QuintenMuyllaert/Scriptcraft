@@ -17,6 +17,14 @@ const sendMessage = (playerName = "@a", msg = '""', color = "white") => {
 process.on("message", (msg) => {
 	//example chat message
 	//[05:16:28] [Server thread/INFO]: <Computer_Q> hello world
+
+	if (msg.endsWith(" joined the game")) {
+		const name = msg.split("]: ").pop().replace(" joined the game", "");
+		sendMessage(name, "Welcome in ScriptCraft!", "green");
+		sendMessage(name, `Use '${prefix}COMMANDNAME to build.'`, "green");
+		sendMessage(name, `Use '${prefix}create js COMMANDNAME' to create a new project.`, "green");
+	}
+
 	const chatMessage = msg.match(/: <.+?> /);
 	if (!chatMessage) {
 		return;
