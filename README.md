@@ -2,7 +2,9 @@
 
 A tool to program within Minecraft
 
-## Installing / Starting the Server
+## Starting the Server
+
+The start script is smart and will generate all misising files.
 
 **Important! NO SUDO / ROOT**
-`bash install.sh`
+`bash start.sh`
