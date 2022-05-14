@@ -115,6 +115,7 @@ whitelist.json
 session.lock
 ops.json
 server.properties
+crash-reports
 
 #Scriptcraft
 .command.json
