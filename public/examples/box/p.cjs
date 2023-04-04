@@ -1,1 +1,1 @@
-../../../modules/p.cjs
+module.exports = require("../../../modules/scriptcraft.js");

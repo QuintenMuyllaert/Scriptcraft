@@ -6,27 +6,22 @@ import fs from "fs";
 import { spawn, fork } from "child_process";
 import file from "./modules/file.js";
 
-import { downloadLatest, canServerStart } from "./downloadmc.js";
-
-const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+//check ram of the system
+import os from "os";
+const totalRam = os.totalmem();
+//use at most 80% of the ram
+const maxRam = Math.floor(totalRam * 0.8);
+const ramInGigabytes = Math.floor(maxRam / 1024 / 1024 / 1024);
+console.log(`Using ${ramInGigabytes}GB of RAM`);
 
 (async () => {
-	await downloadLatest();
-
 	//remove old Minecraft world
 	fs.rmSync(path.join("./minecraft", "world"), { recursive: true, force: true });
 
 	//copies clean Minecraft world
 	file.cp(path.join("./minecraft", "world_clean"), path.join("./minecraft", "world"));
 
-	let time = 0;
-	while (!canServerStart()) {
-		console.log(time + " Waiting for server to download...");
-		await delay(1000);
-		time++;
-	}
-
-	const server = spawn("java", ["-jar", "-Xms2G", "-Xmx2G", "server.jar"], { cwd: "./minecraft" });
+	const server = spawn("java", ["-jar", `-Xms${ramInGigabytes}G`, `-Xmx${ramInGigabytes}G`, "server.jar"], { cwd: "./minecraft" });
 
 	//hot reload
 	let scriptcraft;

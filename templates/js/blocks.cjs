@@ -1,1 +1,1 @@
-../../modules/blocks.cjs
+module.exports = require("../../../modules/blocks.cjs");

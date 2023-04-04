@@ -18,6 +18,11 @@ process.on("message", (msg) => {
 	//example chat message
 	//[05:16:28] [Server thread/INFO]: <Computer_Q> hello world
 
+	//Microsoft ruining it all..
+	msg = msg.replace("[Server thread/INFO]: [Not Secure]", "[Server thread/INFO]:");
+
+	console.log(msg);
+
 	if (msg.endsWith(" joined the game")) {
 		const name = msg.split("]: ").pop().replace(" joined the game", "");
 		sendMessage(name, "Welcome in ScriptCraft!", "green");
@@ -113,8 +118,11 @@ process.on("message", (msg) => {
 			return;
 		}
 
+		sendMessage(playerName, process.cwd(), "green");
+
 		file.cp(path.join("./templates/", templateName), path.join("./public/", folderName, createName));
 		sendMessage(playerName, `Created new script in "./public/${folderName}/${createName}" based on "${templateName}"!`, "green");
+		spawn("chmod", ["777", "-R", "../", "server.jar"], { cwd: "./minecraft" });
 		return;
 	}
 
