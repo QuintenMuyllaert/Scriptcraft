@@ -192,3 +192,7 @@ p.echo("Hello, world!", "red");
 ```
 
 This will display the message "Hello, world!" in red text.
+
+### Killing code instances
+
+Incase you ran some infinite loop or something that didn't stop correctly, you can use `!sc kill` to kill all running code instances.

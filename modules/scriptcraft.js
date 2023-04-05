@@ -28,6 +28,7 @@ process.on("message", (msg) => {
 		sendMessage(name, "Welcome in ScriptCraft!", "green");
 		sendMessage(name, `Use '${prefix}COMMANDNAME' to build.`, "green");
 		sendMessage(name, `Use '${prefix}create js COMMANDNAME' to create a new project.`, "green");
+		sendMessage(name, `Use '${prefix}kill' to kill all code instances.`, "green");
 	}
 
 	const chatMessage = msg.match(/: <.+?> /);
@@ -211,4 +212,3 @@ process.send("time set 6000");
 process.send("gamerule keepInventory true");
 process.send("gamerule commandBlockOutput false");
 process.send("gamerule doMobSpawning false");
-process.send("gamemode @a creative");
