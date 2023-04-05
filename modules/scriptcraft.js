@@ -156,12 +156,20 @@ process.on("message", (msg) => {
 				script = file;
 				type = programs[script.split(".").pop()];
 			}
-			if (file.startsWith("package")) {
+			if (file.startsWith("package.json")) {
 				script = JSON.parse(fs.readFileSync(path.join("./public", folderName, playerFunction, file))).main;
 				type = "node";
 				break;
 			}
 		}
+
+		console.log({
+			folderName,
+			playerFunction,
+			script,
+			scriptcraftArguments,
+			playerArguments,
+		});
 
 		let proc;
 		if (type == "node") {
