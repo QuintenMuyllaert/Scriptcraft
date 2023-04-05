@@ -173,9 +173,10 @@ process.on("message", (msg) => {
 
 		let proc;
 		if (type == "node") {
-			proc = fork(path.join("./public", folderName, playerFunction, script), [JSON.stringify(scriptcraftArguments), ...playerArguments], {
+			proc = fork(script, [JSON.stringify(scriptcraftArguments), ...playerArguments], {
 				detached: true,
 				silent: true,
+				cwd: path.join("./public", folderName, playerFunction),
 			});
 
 			proc.on("message", (msg) => {
