@@ -25,6 +25,8 @@ let s = (data) => {
 let conditions = "";
 
 let checkblock = (block) => {
+	return block; // comment this out if you want to check the block
+
 	const illegal = ["tnt", "lava", "water", "command_block", "repeating_command_block", "chain_command_block", "structure_block", "structure_void"];
 	for (const illi of illegal) {
 		if (block.includes(illi)) {
