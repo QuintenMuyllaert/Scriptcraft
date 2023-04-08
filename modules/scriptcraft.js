@@ -88,6 +88,18 @@ process.on("message", (msg) => {
 		return;
 	}
 
+	if (playerCommand === "list") {
+		//list all scripts in user folder (should work with the --in flag)
+		if (!fs.existsSync(path.join("./public/", folderName))) {
+			sendMessage(playerName, `Folder "${folderName}" does not exist!`, "red");
+			return;
+		}
+
+		const scripts = fs.readdirSync(path.join("./public/", folderName));
+		sendMessage(playerName, `Scripts in "${folderName}": ${scripts.join(", ")}`, "green");
+		return;
+	}
+
 	file.mkDirKeep(path.join("./public/", playerName));
 
 	if (!fs.existsSync(path.join("./public/", folderName))) {
