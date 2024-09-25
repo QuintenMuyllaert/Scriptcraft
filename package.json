@@ -1,0 +1,25 @@
+{
+	"name": "scriptcraft",
+	"version": "1.0.0",
+	"description": "A tool to program within Minecraft",
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"start": "node ."
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ComputerQ/Scriptcraft.git"
+	},
+	"keywords": [
+		"Scriptcraft",
+		"Minecraft",
+		"JavaScript"
+	],
+	"author": "Quinten Muyllaert",
+	"license": "UNLICENSED",
+	"bugs": {
+		"url": "https://github.com/ComputerQ/Scriptcraft/issues"
+	},
+	"homepage": "https://github.com/ComputerQ/Scriptcraft#readme"
+}
