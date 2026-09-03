@@ -9,8 +9,8 @@ RUN apk add --no-cache openjdk25
 # Make minecraft folder
 RUN mkdir minecraft
 
-# Download latest minecraft server jar to ./minecraft/server.jar ( 26.1.2 )
-RUN wget -O minecraft/server.jar https://piston-data.mojang.com/v1/objects/97ccd4c0ed3f81bbb7bfacddd1090b0c56f9bc51/server.jar
+# Download latest minecraft server jar to ./minecraft/server.jar ( 26.2 )
+RUN wget -O minecraft/server.jar https://piston-data.mojang.com/v1/objects/823e2250d24b3ddac457a60c92a6a941943fcd6a/server.jar
 
 # Install app dependencies
 COPY package*.json ./
@@ -23,6 +23,9 @@ COPY . .
 
 # Public folder needs to be mounted as a docker volume
 VOLUME /root/scriptcraft/public
+
+# custom-clean-world folder needs to be mounted as a docker volume
+VOLUME /root/scriptcraft/custom-clean-world
 
 # Expose port 25565
 EXPOSE 25565

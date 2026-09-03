@@ -1,5 +1,9 @@
 #!bin/bash
 #linuxserver/code-server
+
+# remove old / unused containers
+docker rm -f $(docker ps -a -q -f name=code-server)
+
 #host vscode server with the "public" volume mounted to the project folder
 docker run -d \
   --name=code-server \

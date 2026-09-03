@@ -117,9 +117,16 @@ ops.json
 server.properties
 crash-reports
 
-#Scriptcraft
+# Scriptcraft
 .command.json
 public/*
 !public/readme.md
 !public/examples
 .currentmc
+shadowbanned.json
+antigrief.txt
+custom-clean-world/*
+settings.json
+
+# MacOS
+.DS_Store

@@ -17,7 +17,15 @@
 		"JavaScript"
 	],
 	"author": "Quinten Muyllaert",
-	"license": "UNLICENSED",
+	"contributors": [
+		{
+			"name": "Quinten Muyllaert"
+		},
+		{
+			"name": "LarsCrafter14"
+		}
+	],
+	"license": "MIT",
 	"bugs": {
 		"url": "https://github.com/ComputerQ/Scriptcraft/issues"
 	},
