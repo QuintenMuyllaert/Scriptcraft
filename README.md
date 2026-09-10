@@ -22,7 +22,7 @@ git clone https://github.com/ComputerQ/Scriptcraft/
 cd Scriptcraft
 ```
 
-### Switch to dev branch
+### Switch to dev branch ( optional )
 
 ```sh
 git checkout dev
