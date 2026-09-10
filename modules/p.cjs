@@ -326,74 +326,73 @@ module.exports = {
 		return this;
 	},
 	command: function (txt = "") {
-		const illegal = [
-			"op ",
-			"gamemode ",
-			"kick ",
-			"ban ",
-			"ban-ip ",
-			"defaultgamemode ",
-			"dialog ",
-			"difficulty ",
-			"pardon ",
-			"pardon-ip ",
-			"reload ",
-			"save-all ",
-			"save-off ",
-			"save-on ",
-			"spreadplayers ",
-			"stop ",
-			"tick ",
-			"transfer ",
-			"worldborder ",
-			"whitelist ",
-			"waypoint ",
-		];
-		for (const ill in illegal) {
-			if (txt.includes(ill) && !command.isOp) {
-				s(`say "${command.user}" attempted to use restricted command ${txt} using ${command.owner}/${command.name}`);
-				if (!command.isShadowbanned) {
-					s(`shadowban ${command.user}`, true);
-					command.isShadowbanned = true;
-					antigriefing = true;
-				}
-				return this;
+		// if the player is OP, they can use all commands, otherwise we check if the command is illegal
+		if (!command.isOp) {
+			const illegal = [
+				"op ",
+				"gamemode ",
+				"kick ",
+				"ban ",
+				"ban-ip ",
+				"defaultgamemode ",
+				"dialog ",
+				"difficulty ",
+				"pardon ",
+				"pardon-ip ",
+				"reload ",
+				"save-all ",
+				"save-off ",
+				"save-on ",
+				"spreadplayers ",
+				"stop ",
+				"tick ",
+				"transfer ",
+				"worldborder ",
+				"whitelist ",
+				"waypoint ",
+			];
+			const barely_illegal = [
+				"setblock ",
+				"fill ",
+				"summon ",
+				"give ",
+				"kill ",
+				"damage ",
+				"data ",
+				"effect ",
+				"gamerule ",
+				"item ",
+				"attribute ",
+				"enchant ",
+				"particle ",
+				"place ",
+				"playsound ",
+				"recipe ",
+				"advancement ",
+				"ride ",
+				"rotate ",
+				"teleport ",
+				"title ",
+				"weather ",
+				"time ",
+			];
+			let illegalArray = [];
+			// if antigriefing is enabled for this player, we check for both illegal and barely illegal commands, otherwise we only check for illegal commands
+			if (!antigriefing) {
+				illegalArray = illegal;
+			} else {
+				illegalArray = illegal.concat(barely_illegal);
 			}
-		}
-		const barely_illegal = [
-			"setblock ",
-			"fill ",
-			"summon ",
-			"give ",
-			"kill ",
-			"damage ",
-			"data ",
-			"effect ",
-			"gamerule ",
-			"item ",
-			"attribute ",
-			"enchant ",
-			"particle ",
-			"place ",
-			"playsound ",
-			"recipe ",
-			"advancement ",
-			"ride ",
-			"rotate ",
-			"teleport ",
-			"title ",
-			"weather ",
-			"time ",
-		];
-		for (const ill in barely_illegal) {
-			if (txt.includes(ill) && antigriefing && !command.isOp) {
-				s(`say "${command.user}" attempted to use restricted command ${txt} using ${command.owner}/${command.name}`);
-				if (!command.isShadowbanned) {
-					s(`shadowban ${command.user}`, true);
-					command.isShadowbanned = true;
-					antigriefing = true;
+			for (const ill in illegalArray) {
+				if (txt.includes(ill)) {
+					s(`say "${command.user}" attempted to use restricted command ${txt} using ${command.owner}/${command.name}`);
+					if (!command.isShadowbanned) {
+						s(`shadowban ${command.user}`, true);
+						command.isShadowbanned = true;
+						antigriefing = true;
+					}
+					return this;
 				}
-				return this;
 			}
 		}
 
