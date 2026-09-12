@@ -23,7 +23,7 @@ const sendMessage = (playerName = "@a", msg = '""', color = "white", toCopy = ""
 		process.send(`tellraw ${playerName} {"text":${msg},"color":"${color}"}`);
 		return;
 	}
-	process.send(`tellraw ${playerName} {"text":${msg},"color":"${color}","click_event":{"action":"copy_to_clipboard","value":"${toCopy}"}}`);
+	process.send(`tellraw ${playerName} {"text":${msg},"color":"${color}","click_event":{"action":"suggest_command","command":"${toCopy}"}}`);
 };
 
 process.on("message", (msg) => {
@@ -91,11 +91,12 @@ process.on("message", (msg) => {
 	let folderName = playerName;
 	file.mkDirKeep(path.join("./public/", playerName));
 	if (playerArgument["in"]) {
-		if (typeof playerArgument["in"] === "string") {
-			if (!isOp) {
+		if (!isOp) {
 				sendMessage(playerName, `You are not allowed to use the "--in" parameter!`, "red");
 				return;
-			}
+		} else if (playerArgument["help"]||playerArgument["?"]) {
+				sendMessage(playerName, `The --in parameter runs commands in a specified folder.`, "blue");
+		} else if (typeof playerArgument["in"] === "string") {
 			const folder = playerArgument["in"].match(/([a-zA-Z_\-0-9])\w+/);
 			if (!folder) {
 				sendMessage(playerName, `Illegal folder for "--in" parameter!`, "red");
@@ -107,6 +108,14 @@ process.on("message", (msg) => {
 			return;
 		}
 		
+	}
+	if (playerArgument["force"]) {
+		if (!isOp) {
+			sendMessage(playerName, `You are not allowed to use the "--force" parameter!`, "red");
+			return;
+		} else if (playerArgument["help"]||playerArgument["?"]) {
+			sendMessage(playerName, `The --force parameter creates a folder if it does not exist.`, "blue");
+		}
 	}
 
 	if (!player[playerName]) {
@@ -131,11 +140,11 @@ process.on("message", (msg) => {
 		if (isOp) {
 			sendMessage(
 				playerName,
-				`${prefix}create TEMPLATE SCRIPTNAME --in FOLDERNAME - Create a new script based on a template`,
+				`${prefix}create TEMPLATE SCRIPTNAME --in FOLDERNAME --force - Create a new script based on a template in a specified folder, creating the folder if it does not exist using the --force flag`,
 				"blue",
-				`${prefix}create TEMPLATE SCRIPTNAME --in FOLDERNAME`,
+				`${prefix}create TEMPLATE SCRIPTNAME --in FOLDERNAME --force`,
 			);
-			sendMessage(playerName, `${prefix}COMMANDNAME(ARGUMENTS) --in FOLDERNAME - Run a script`, "blue", `${prefix}COMMANDNAME(ARGUMENTS) --in FOLDERNAME`);
+			sendMessage(playerName, `${prefix}COMMANDNAME(ARGUMENTS) --in FOLDERNAME - Run a script in a folder`, "blue", `${prefix}COMMANDNAME(ARGUMENTS) --in FOLDERNAME`);
 			sendMessage(playerName, `${prefix}list --in FOLDERNAME - List all scripts in a folder`, "blue", `${prefix}list --in FOLDERNAME`);
 			sendMessage(playerName, `${prefix}shadowban PLAYERNAME - shadowban a player.`, "blue", `${prefix}shadowban PLAYERNAME`);
 			sendMessage(playerName, `${prefix}unshadowban PLAYERNAME - unshadowban a player.`, "blue", `${prefix}unshadowban PLAYERNAME`);
@@ -216,27 +225,6 @@ process.on("message", (msg) => {
 		settings.replace_world = !settings.replace_world;
 		fs.writeFileSync("./settings.json", JSON.stringify(settings));
 		sendMessage(playerName, `Toggled replace_world to ${settings.replace_world}`, "blue");
-		return;
-	}
-
-	if (!fs.existsSync(path.join("./public/", folderName))) {
-		sendMessage(playerName, `Folder "${folderName}" does not exist!`, "red");
-		return;
-	}
-
-	const scripts = fs.readdirSync(path.join("./public/", folderName)).filter((f) => !f.startsWith(".")); // exclude .DS_Store and other hidden files
-	const templates = fs.readdirSync(path.join("./templates/")).filter((f) => !f.startsWith(".")); // exclude .DS_Store and other hidden files
-
-	if (/^list$/i.test(playerCommand)) {
-		if (playerArgument["help"]||playerArgument["?"]) {
-			sendMessage(playerName, `The list command lists all scripts in the specified folder.`, "green");
-			if (isOp) {
-				sendMessage(playerName, `You can use the --in flag to specify a different folder.`, "blue");
-			}
-			return;
-		}
-		//list all scripts in user folder (should work with the --in flag)
-		sendMessage(playerName, `Scripts in "${folderName}": ${scripts.join(", ")}`, "green");
 		return;
 	}
 
@@ -373,14 +361,35 @@ process.on("message", (msg) => {
 	}
 
 	if (!fs.existsSync(path.join("./public/", folderName))) {
-		sendMessage(playerName, `Folder "${folderName}" does not exist!`, "red");
+		if (playerArgument["force"] && !(playerArgument["help"] || playerArgument["?"])) {
+			file.mkDirKeep(path.join("./public/", folderName));
+			sendMessage(playerName, `Folder "${folderName}" did not exist, but was created with the --force flag.`, "yellow");
+		} else {
+			sendMessage(playerName, `Folder "${folderName}" does not exist! Use the --force flag to create it.`, "red");
+			return;
+		}
+	}
+
+	const scripts = fs.readdirSync(path.join("./public/", folderName)).filter((f) => !f.startsWith(".")); // exclude .DS_Store and other hidden files
+	const templates = fs.readdirSync(path.join("./templates/")).filter((f) => !f.startsWith(".")).filter((f) => fs.statSync(path.join("./templates/", f)).isDirectory()); // exclude .DS_Store and other hidden files, ensuring it's a directory and not a file
+
+	if (/^list$/i.test(playerCommand)) {
+		if (playerArgument["help"]||playerArgument["?"]) {
+			sendMessage(playerName, `The list command lists all scripts in the specified folder.`, "green");
+			if (isOp && !playerArgument["in"]) {
+				sendMessage(playerName, `You can use the --in flag to specify a different folder.`, "blue");
+			}
+			return;
+		}
+		//list all scripts in user folder (should work with the --in flag)
+		sendMessage(playerName, `Scripts in "${folderName}": ${scripts.join(", ")}`, "green");
 		return;
 	}
 
 	if (/^create /i.test(playerCommand)) {
 		if (playerArgument["help"] || playerArgument["?"]) {
 				sendMessage(playerName, `The create command creates a new script based on a template.`, "green");
-				if (isOp) {
+				if (isOp && !playerArgument["in"]) {
 					sendMessage(playerName, `You can use the --in flag to specify a different folder.`, "blue");
 				}
 				return;
@@ -407,6 +416,7 @@ process.on("message", (msg) => {
 
 		if (!templates.includes(templateName)) {
 			sendMessage(playerName, `"${templateName}" is not a valid template!`, "red");
+			sendMessage(playerName, `Available templates: ${templates.join(", ")}`, "yellow");
 			return;
 		}
 
@@ -424,7 +434,7 @@ process.on("message", (msg) => {
 	if (scripts.includes(playerFunction)) {
 		if (playerArgument["help"] || playerArgument["?"]) {
 			sendMessage(playerName, `The ${playerFunction} command runs the script located in "./public/${folderName}/${playerFunction}".`, "green");
-			if (isOp) {
+			if (isOp && !playerArgument["in"]) {
 				sendMessage(playerName, `You can use the --in flag to specify a different folder.`, "blue");
 			}
 			return;
